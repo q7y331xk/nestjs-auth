@@ -23,8 +23,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): DefaultPromiseResponse {
-    return this.userService.create(createUserDto);
+  signUp(@Body() createUserDto: CreateUserDto): DefaultPromiseResponse {
+    return this.userService.signUp(createUserDto);
   }
 
   @Get('name')

@@ -1,3 +1,3 @@
 export const adminUserConstant = {
-  list: ['oadmin', 'odmin1'],
+  list: ['odmin', 'odmin1'],
 };

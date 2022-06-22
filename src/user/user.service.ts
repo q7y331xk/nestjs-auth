@@ -7,12 +7,13 @@ import {
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { catchHandler } from 'src/shared/throw-error-in-catch';
 import { PwCode } from './entities/pw-code.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { getSalt, passswordEncrypt } from './funcs/pw-hash';
+import { odenSignIn } from './funcs/sign-in';
 
 @Injectable()
 export class UserService {
@@ -24,9 +25,16 @@ export class UserService {
     private readonly authService: AuthService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): DefaultPromiseResponse {
+  async signUp(createUserDto: CreateUserDto): DefaultPromiseResponse {
     try {
-      const userNew = this.userRepository.create(createUserDto);
+      const { password } = createUserDto;
+      const salt = getSalt();
+      const passwordHashed = passswordEncrypt(password, salt);
+      const userNew = this.userRepository.create({
+        ...createUserDto,
+        password: passwordHashed,
+        salt,
+      });
       const userSaved = await this.userRepository.save(userNew);
       return new ResponseSuccess({ created: true });
     } catch (err) {
@@ -45,20 +53,15 @@ export class UserService {
 
   async signIn(signInUserDto: SignInUserDto): DefaultPromiseResponse {
     try {
-      const { authType } = signInUserDto;
+      const { authType, name, password } = signInUserDto;
       switch (authType) {
         case 0:
-          const userExist = await this.userRepository.findOne({
-            where: signInUserDto,
-          });
-          if (!userExist) throw 'user not found';
-          const { id, name, passwordVersion } = userExist;
-          const accessToken = this.authService.signIn(
-            id,
+          return odenSignIn({
+            userRepository: this.userRepository,
+            authService: this.authService,
             name,
-            passwordVersion,
-          );
-          return new ResponseSuccess(accessToken);
+            password,
+          });
         default:
           throw 'no authType';
       }
@@ -69,13 +72,11 @@ export class UserService {
 
   async removeMe(user: TokenUser): DefaultPromiseResponse {
     try {
-      console.log(user);
       const userExist = await this.userRepository.findOne({
         where: { id: user.id },
       });
-      // const userRemoved = await this.userRepository.remove(userExist);
-      // return new ResponseSuccess(userRemoved);
-      return new ResponseSuccess();
+      const userRemoved = await this.userRepository.remove(userExist);
+      return new ResponseSuccess(userRemoved);
     } catch (err) {
       catchHandler(err);
     }
