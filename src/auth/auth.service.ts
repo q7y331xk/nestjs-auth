@@ -17,13 +17,12 @@ export class AuthService {
 
 export const isAdmin = (user: TokenUser) => {
   if (
-    !user ||
-    !stringFunc.compareOneWithMany(user.name, adminUserConstant.list)
-  )
-    throw new ResponseException(
-      { unauthorized: 'admin' },
-      'Forbidden',
-      HttpStatus.FORBIDDEN,
-    );
-  return true;
+    user &&
+    stringFunc.compareOneWithMany(user.name, adminUserConstant.list)
+  ) return true;
+  throw new ResponseException(
+    { unauthorized: 'admin' },
+    'Forbidden',
+    HttpStatus.FORBIDDEN,
+  );
 };
