@@ -76,7 +76,7 @@ export class UserService {
         where: { id: user.id },
       });
       const userRemoved = await this.userRepository.remove(userExist);
-      return new ResponseSuccess(userRemoved);
+      return new ResponseSuccess({ removed: true });
     } catch (err) {
       catchHandler(err);
     }
