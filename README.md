@@ -1,3 +1,5 @@
 # authen
 
-authen by miearu
+auth by miearu
+
+authen + author
