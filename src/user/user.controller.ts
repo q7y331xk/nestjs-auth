@@ -1,4 +1,3 @@
-import { isAdmin } from './../auth/auth.service';
 import { AuthGuard } from './../auth/auth.guard';
 import { DefaultPromiseResponse } from '../types/http-response.type';
 import {
@@ -6,8 +5,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
   Query,
   UseGuards,
@@ -40,7 +37,6 @@ export class UserController {
   @Delete('me')
   @UseGuards(AuthGuard)
   async removeMe(@Token() user: TokenUser) {
-    isAdmin(user);
     return this.userService.removeMe(user);
   }
 }
