@@ -3,7 +3,7 @@ import { GenericObject } from './shared.type';
 
 export abstract class ResponseJson {
   constructor(
-    response?: GenericObject | string,
+    response?: any,
     message?: string,
     statusCode?: number,
     name?: string,
@@ -13,7 +13,7 @@ export abstract class ResponseJson {
     this.statusCode = statusCode;
     this.name = name;
   }
-  response!: GenericObject | string;
+  response!: any;
   message!: string;
   statusCode!: number;
   name!: string;
@@ -21,7 +21,7 @@ export abstract class ResponseJson {
 
 export class ResponseSuccess extends ResponseJson {
   constructor(
-    response?: GenericObject | string,
+    response?: any,
     message?: string,
     statusCode?: number,
   ) {
@@ -52,9 +52,9 @@ export class ResponseSuccess extends ResponseJson {
 
 export class ResponseException extends ResponseJson {
   constructor(
+    response?: any,
     message?: string,
     statusCode?: number,
-    response?: GenericObject | string,
   ) {
     super();
     this.message = message || 'bad request';

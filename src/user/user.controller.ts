@@ -1,3 +1,5 @@
+import { isAdmin } from './../auth/auth.service';
+import { AuthGuard } from './../auth/auth.guard';
 import { DefaultPromiseResponse } from '../types/http-response.type';
 import {
   Controller,
@@ -7,13 +9,14 @@ import {
   Patch,
   Param,
   Delete,
-  HttpCode,
-  HttpStatus,
-  Res,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { SignInUserDto } from './dto/sign-in-user.dto';
+import { Token } from 'src/shared/user.decorator';
+import { TokenUser } from 'src/types/shared.type';
 
 @Controller('user')
 export class UserController {
@@ -24,23 +27,20 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('name')
+  async findOneByName(@Query('name') name: string): DefaultPromiseResponse {
+    return this.userService.findOneByName(name);
   }
 
-  @Get(':id([0-9]+)')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Post('sign-in')
+  async signIn(@Body() signInUserDto: SignInUserDto): DefaultPromiseResponse {
+    return this.userService.signIn(signInUserDto);
   }
 
-  @Patch(':id([0-9]+)')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id([0-9]+)')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Delete('me')
+  @UseGuards(AuthGuard)
+  async removeMe(@Token() user: TokenUser) {
+    isAdmin(user);
+    return this.userService.removeMe(user);
   }
 }
